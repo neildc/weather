@@ -1,7 +1,9 @@
 module Main exposing (..)
 
-import Html exposing (Html, text, div, h1, img)
+import Api.Weather
+import Html exposing (Html, div, h1, img, text)
 import Html.Attributes exposing (src)
+import Types.Location exposing (Location)
 
 
 ---- MODEL ----
@@ -36,8 +38,7 @@ update msg model =
 view : Model -> Html Msg
 view model =
     div []
-        [ img [ src "/logo.svg" ] []
-        , h1 [] [ text "Your Elm App is working!" ]
+        [ h1 [] [ text <| Api.Weather.baseUrl Types.Location.Sydney Api.Weather.Current ]
         ]
 
 
