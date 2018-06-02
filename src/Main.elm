@@ -3,7 +3,7 @@ module Main exposing (..)
 import Api.Weather
 import EveryDict exposing (EveryDict)
 import Html exposing (Html, button, div, h1, img, text)
-import Html.Attributes exposing (src)
+import Html.Attributes exposing (class, src)
 import Html.Events exposing (..)
 import Http
 import Types.CurrentForecastResponse as CurrentForecastResponse exposing (CurrentForecastResponse)
@@ -22,23 +22,19 @@ type WeatherData a
 
 type alias Model =
     { currentForecastsDict : EveryDict Location (WeatherData CurrentForecastResponse)
+    , selectedState : Maybe Location
     }
 
 
 init : ( Model, Cmd Msg )
 init =
     let
-        allLocations =
-            [ Location.Brisbane
-            , Location.Sydney
-            , Location.Melbourne
-            ]
-
         emptyLocations =
-            List.map (\l -> ( l, NotFetched )) allLocations
+            List.map (\l -> ( l, NotFetched )) Location.all
 
         model =
             { currentForecastsDict = EveryDict.fromList emptyLocations
+            , selectedState = Nothing
             }
     in
     ( model
@@ -51,20 +47,21 @@ init =
 
 
 type Msg
-    = GetForecast Location
+    = TabSelected Location
     | ForecastResponse Location (Result Http.Error CurrentForecastResponse)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        GetForecast location ->
+        TabSelected location ->
             let
                 modelWithLocationFetching =
                     { model
                         | currentForecastsDict =
                             model.currentForecastsDict
                                 |> EveryDict.insert location Fetching
+                        , selectedState = Just location
                     }
             in
             ( modelWithLocationFetching
@@ -98,12 +95,80 @@ update msg model =
 
 view : Model -> Html Msg
 view model =
-    div []
-        [ text <| toString model.currentForecastsDict
-        , button [ onClick <| GetForecast Location.Sydney ] [ text "Sydney" ]
-        , button [ onClick <| GetForecast Location.Brisbane ] [ text "Brisbane" ]
-        , button [ onClick <| GetForecast Location.Melbourne ] [ text "Melbourne" ]
+    div [ class "app" ]
+        [ viewTabs model.selectedState
+        , viewMainPane model
         ]
+
+
+viewTabs : Maybe Location -> Html Msg
+viewTabs currentlySelectedLocation =
+    let
+        baseTabAttributes location =
+            [ src <| Location.imagePath location
+            , onClick <| TabSelected location
+            ]
+
+        tabAttributes location =
+            case currentlySelectedLocation of
+                Just selected ->
+                    if location == selected then
+                        baseTabAttributes location ++ [ class "selected" ]
+                    else
+                        baseTabAttributes location
+
+                Nothing ->
+                    baseTabAttributes location
+
+        tab location =
+            img (tabAttributes location) []
+    in
+    div [ class "tabs" ] <|
+        List.map tab Location.all
+
+
+viewMainPane : Model -> Html Msg
+viewMainPane { selectedState, currentForecastsDict } =
+    let
+        mainPane =
+            case selectedState of
+                Nothing ->
+                    text "Please select a state to begin."
+
+                Just state ->
+                    case EveryDict.get state currentForecastsDict of
+                        Just data ->
+                            viewWeatherDetails data
+
+                        Nothing ->
+                            -- This should never happen.
+                            -- TODO: Possibly prevent this??
+                            text "Invalid state was selected."
+    in
+    div [ class "main-pane" ] [ mainPane ]
+
+
+viewWeatherDetails : WeatherData CurrentForecastResponse -> Html Msg
+viewWeatherDetails weatherData =
+    case weatherData of
+        NotFetched ->
+            -- TODO: Do we even need this state??
+            text "Loading..."
+
+        Fetching ->
+            text "Loading..."
+
+        Error err ->
+            text <| toString err
+
+        Fetched data ->
+            div [ class "weather-details-success" ]
+                [ text <| toString data.temp_c ++ "°C"
+                , text <| data.wx_desc
+                , img [ src <| "http://www.weatherunlocked.com/Images/icons/1/" ++ data.wx_icon ] []
+                , text <| "Wind : " ++ toString data.windspd_kmh ++ "km/h"
+                , text <| "Clouds: " ++ toString data.cloudtotal_pct ++ "%"
+                ]
 
 
 

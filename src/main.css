@@ -3,13 +3,40 @@ body {
   margin: 0;
   text-align: center;
   color: #293c4b;
+  background-color: #ead4ae;
 }
+
+.app {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+}
+
 
 h1 {
   font-size: 30px;
 }
 
+.tabs {
+  margin-left: 30px;
+  align-self: center;
+}
+
+.main-pane {
+    align-self: center;
+}
+
 img {
+  display: block;
   margin: 20px 0;
   max-width: 200px;
+  transition: all .2s ease-in-out;
+}
+
+img:hover { transform: scale(1.1); }
+
+.selected {
+    filter: invert(100%);
+}
+
+.weather-details-success {
 }

@@ -9,6 +9,11 @@ type Location
     | Melbourne
 
 
+all : List Location
+all =
+    [ Brisbane, Sydney, Melbourne ]
+
+
 type alias Coordinates =
     ( Float, Float )
 
@@ -33,3 +38,20 @@ toCoordinatesString location =
             location |> toCoordinates
     in
     toString long ++ "," ++ toString lat
+
+
+imagePath : Location -> String
+imagePath location =
+    let
+        filename =
+            case location of
+                Brisbane ->
+                    "qld"
+
+                Sydney ->
+                    "nsw"
+
+                Melbourne ->
+                    "vic"
+    in
+    "/" ++ filename ++ ".png"
