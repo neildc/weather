@@ -1,7 +1,9 @@
-module Api.Weather exposing (..)
+module Api.Weather exposing (getCurrentForecast)
 
 -- https://developer.weatherunlocked.com/documentation/localweather
 
+import Http
+import Types.CurrentForecastResponse as CurrentForecastResponse exposing (CurrentForecastResponse)
 import Types.Location as Location exposing (Location)
 
 
@@ -26,3 +28,11 @@ baseUrl location localWeatherType =
         , "?app_id=" ++ app_id
         , "&app_key=" ++ api_key
         ]
+
+
+getCurrentForecast : (Result Http.Error CurrentForecastResponse -> msg) -> Location -> Cmd msg
+getCurrentForecast msg location =
+    Http.send msg <|
+        Http.get
+            (baseUrl location Current)
+            CurrentForecastResponse.decoder

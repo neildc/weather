@@ -1,21 +1,50 @@
 module Main exposing (..)
 
 import Api.Weather
-import Html exposing (Html, div, h1, img, text)
+import EveryDict exposing (EveryDict)
+import Html exposing (Html, button, div, h1, img, text)
 import Html.Attributes exposing (src)
-import Types.Location exposing (Location)
+import Html.Events exposing (..)
+import Http
+import Types.CurrentForecastResponse as CurrentForecastResponse exposing (CurrentForecastResponse)
+import Types.Location as Location exposing (Location)
 
 
 ---- MODEL ----
 
 
+type WeatherData a
+    = NotFetched
+    | Fetching
+    | Fetched a
+
+
 type alias Model =
-    {}
+    { currentForecastsDict : EveryDict Location (WeatherData CurrentForecastResponse)
+    , lastError : Maybe String
+    }
 
 
 init : ( Model, Cmd Msg )
 init =
-    ( {}, Cmd.none )
+    let
+        allLocations =
+            [ Location.Brisbane
+            , Location.Sydney
+            , Location.Melbourne
+            ]
+
+        emptyLocations =
+            List.map (\l -> ( l, NotFetched )) allLocations
+
+        model =
+            { currentForecastsDict = EveryDict.fromList emptyLocations
+            , lastError = Nothing
+            }
+    in
+    ( model
+    , Cmd.none
+    )
 
 
 
@@ -23,12 +52,41 @@ init =
 
 
 type Msg
-    = NoOp
+    = GetForecast Location
+    | ForecastResponse Location (Result Http.Error CurrentForecastResponse)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    ( model, Cmd.none )
+    case msg of
+        GetForecast location ->
+            let
+                modelWithLocationFetching =
+                    { model
+                        | currentForecastsDict =
+                            model.currentForecastsDict
+                                |> EveryDict.insert location Fetching
+                    }
+            in
+            ( modelWithLocationFetching
+            , Api.Weather.getCurrentForecast (ForecastResponse location) location
+            )
+
+        ForecastResponse location result ->
+            let
+                updatedModel =
+                    case result of
+                        Result.Ok resp ->
+                            { model
+                                | currentForecastsDict =
+                                    model.currentForecastsDict
+                                        |> EveryDict.insert location (Fetched resp)
+                            }
+
+                        Result.Err e ->
+                            { model | lastError = e |> toString |> Just }
+            in
+            ( updatedModel, Cmd.none )
 
 
 
@@ -38,7 +96,10 @@ update msg model =
 view : Model -> Html Msg
 view model =
     div []
-        [ h1 [] [ text <| Api.Weather.baseUrl Types.Location.Sydney Api.Weather.Current ]
+        [ text <| toString model.currentForecastsDict
+        , button [ onClick <| GetForecast Location.Sydney ] [ text "Sydney" ]
+        , button [ onClick <| GetForecast Location.Brisbane ] [ text "Brisbane" ]
+        , button [ onClick <| GetForecast Location.Melbourne ] [ text "Melbourne" ]
         ]
 
 
