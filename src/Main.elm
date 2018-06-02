@@ -17,11 +17,11 @@ type WeatherData a
     = NotFetched
     | Fetching
     | Fetched a
+    | Error Http.Error
 
 
 type alias Model =
     { currentForecastsDict : EveryDict Location (WeatherData CurrentForecastResponse)
-    , lastError : Maybe String
     }
 
 
@@ -39,7 +39,6 @@ init =
 
         model =
             { currentForecastsDict = EveryDict.fromList emptyLocations
-            , lastError = Nothing
             }
     in
     ( model
@@ -74,17 +73,21 @@ update msg model =
 
         ForecastResponse location result ->
             let
+                insertIntoForecastsDict : WeatherData CurrentForecastResponse -> Model
+                insertIntoForecastsDict data =
+                    { model
+                        | currentForecastsDict =
+                            model.currentForecastsDict
+                                |> EveryDict.insert location data
+                    }
+
                 updatedModel =
                     case result of
                         Result.Ok resp ->
-                            { model
-                                | currentForecastsDict =
-                                    model.currentForecastsDict
-                                        |> EveryDict.insert location (Fetched resp)
-                            }
+                            Fetched resp |> insertIntoForecastsDict
 
                         Result.Err e ->
-                            { model | lastError = e |> toString |> Just }
+                            Error e |> insertIntoForecastsDict
             in
             ( updatedModel, Cmd.none )
 
