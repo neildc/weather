@@ -1,0 +1,37 @@
+# Emacs REST Client
+# Sample request
+
+GET http://api.weatherunlocked.com/api/current/-33.86,151.2?app_id=930fc96a&app_key=bd8f96bc469b5f3a186a7b87da0f8ddd
+
+#
+
+    {
+      "lat": -33.95,
+      "lon": 151.18,
+      "alt_m": 6.0,
+      "alt_ft": 19.69,
+      "wx_desc": "Light Rain Shower",
+      "wx_code": 80,
+      "wx_icon": "IsoRainSwrsDay.gif",
+      "temp_c": 15.0,
+      "temp_f": 59.0,
+      "feelslike_c": 12.25,
+      "feelslike_f": 54.05,
+      "humid_pct": 77.0,
+      "windspd_mph": 32.31,
+      "windspd_kmh": 52.0,
+      "windspd_kts": 28.08,
+      "windspd_ms": 14.44,
+      "winddir_deg": 210.0,
+      "winddir_compass": "SSW",
+      "cloudtotal_pct": 75.0,
+      "vis_km": 6.0,
+      "vis_mi": 3.73,
+      "vis_desc": null,
+      "slp_mb": 1016.9,
+      "slp_in": 30.11,
+      "dewpoint_c": 11.01,
+      "dewpoint_f": 51.82
+    }
+
+#
