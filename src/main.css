@@ -1,8 +1,8 @@
 body {
-  font-family: 'Source Sans Pro', 'Trebuchet MS', 'Lucida Grande', 'Bitstream Vera Sans', 'Helvetica Neue', sans-serif;
-  margin: 0;
-  text-align: center;
-  color: #293c4b;
+    font-family: 'Source Sans Pro', 'Trebuchet MS', 'Lucida Grande', 'Bitstream Vera Sans', 'Helvetica Neue', sans-serif;
+    margin: 0;
+    text-align: center;
+    color: #293c4b;
 }
 
 .app {
@@ -16,13 +16,12 @@ body {
 }
 
 h1 {
-  font-size: 30px;
+    font-size: 30px;
 }
 
 .tabs {
-  align-self: center;
-  grid-area: tabs;
-
+    align-self: center;
+    grid-area: tabs;
 }
 
 .main-pane {
@@ -34,12 +33,11 @@ h1 {
 }
 
 .tab-item {
-  display: block;
-  margin: 20px 0;
-  max-width: 200px;
-  filter: drop-shadow( -5px -5px 5px #000 );
-
-  transition: all .2s ease-in-out;
+    display: block;
+    margin: 20px 0;
+    max-width: 200px;
+    filter: drop-shadow( -5px -5px 5px #000 );
+    transition: all .2s ease-in-out;
 }
 
 .tab-item:hover {
