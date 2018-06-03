@@ -14,8 +14,7 @@ import Types.Location as Location exposing (Location)
 
 
 type WeatherData a
-    = NotFetched
-    | Fetching
+    = Fetching
     | Fetched a
     | Error Http.Error
 
@@ -29,11 +28,8 @@ type alias Model =
 init : ( Model, Cmd Msg )
 init =
     let
-        emptyLocations =
-            List.map (\l -> ( l, NotFetched )) Location.all
-
         model =
-            { currentForecastsDict = EveryDict.fromList emptyLocations
+            { currentForecastsDict = EveryDict.empty
             , selectedState = Nothing
             }
     in
@@ -151,10 +147,6 @@ viewMainPane { selectedState, currentForecastsDict } =
 viewWeatherDetails : WeatherData CurrentForecastResponse -> Html Msg
 viewWeatherDetails weatherData =
     case weatherData of
-        NotFetched ->
-            -- TODO: Do we even need this state??
-            text "Loading..."
-
         Fetching ->
             text "Loading..."
 
