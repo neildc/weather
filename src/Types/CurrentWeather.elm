@@ -1,4 +1,4 @@
-module Types.CurrentForecastResponse exposing (..)
+module Types.CurrentWeather exposing (..)
 
 import Json.Decode exposing (Decoder, float, int, string)
 import Json.Decode.Pipeline exposing (decode, required)
@@ -34,7 +34,7 @@ import Json.Decode.Pipeline exposing (decode, required)
 --     slp_in	2 decimal	inches	sea level pressure
 
 
-type alias CurrentForecastResponse =
+type alias CurrentWeather =
     { temp_c : Float
     , feelslike_c : Float
     , wx_desc : String
@@ -44,9 +44,9 @@ type alias CurrentForecastResponse =
     }
 
 
-decoder : Decoder CurrentForecastResponse
+decoder : Decoder CurrentWeather
 decoder =
-    decode CurrentForecastResponse
+    decode CurrentWeather
         |> required "temp_c" float
         |> required "feelslike_c" float
         |> required "wx_desc" string

@@ -6,7 +6,7 @@ import Html exposing (..)
 import Html.Attributes exposing (class, classList, src)
 import Html.Events exposing (..)
 import Http
-import Types.CurrentForecastResponse as CurrentForecastResponse exposing (CurrentForecastResponse)
+import Types.CurrentWeather as CurrentWeather exposing (CurrentWeather)
 import Types.Location as Location exposing (Location)
 
 
@@ -20,7 +20,7 @@ type WeatherData a
 
 
 type alias Model =
-    { currentForecastsDict : EveryDict Location (WeatherData CurrentForecastResponse)
+    { currentWeatherDict : EveryDict Location (WeatherData CurrentWeather)
     , selectedState : Maybe Location
     }
 
@@ -29,7 +29,7 @@ init : ( Model, Cmd Msg )
 init =
     let
         model =
-            { currentForecastsDict = EveryDict.empty
+            { currentWeatherDict = EveryDict.empty
             , selectedState = Nothing
             }
     in
@@ -44,7 +44,7 @@ init =
 
 type Msg
     = TabSelected Location
-    | ForecastResponse Location (Result Http.Error CurrentForecastResponse)
+    | ForecastResponse Location (Result Http.Error CurrentWeather)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -54,8 +54,8 @@ update msg model =
             let
                 modelWithLocationFetching =
                     { model
-                        | currentForecastsDict =
-                            model.currentForecastsDict
+                        | currentWeatherDict =
+                            model.currentWeatherDict
                                 |> EveryDict.insert location Fetching
                         , selectedState = Just location
                     }
@@ -66,11 +66,11 @@ update msg model =
 
         ForecastResponse location result ->
             let
-                insertIntoForecastsDict : WeatherData CurrentForecastResponse -> Model
+                insertIntoForecastsDict : WeatherData CurrentWeather -> Model
                 insertIntoForecastsDict data =
                     { model
-                        | currentForecastsDict =
-                            model.currentForecastsDict
+                        | currentWeatherDict =
+                            model.currentWeatherDict
                                 |> EveryDict.insert location data
                     }
 
@@ -126,7 +126,7 @@ viewTabs currentlySelectedLocation =
 
 
 viewMainPane : Model -> Html Msg
-viewMainPane { selectedState, currentForecastsDict } =
+viewMainPane { selectedState, currentWeatherDict } =
     let
         viewNothingSelected =
             h1 [] [ text "Please select a state to retrieve the weather for its capital city." ]
@@ -137,7 +137,7 @@ viewMainPane { selectedState, currentForecastsDict } =
                     viewNothingSelected
 
                 Just state ->
-                    case EveryDict.get state currentForecastsDict of
+                    case EveryDict.get state currentWeatherDict of
                         Just data ->
                             div []
                                 [ h1 [] [ text <| String.toUpper <| toString state ]
@@ -153,7 +153,7 @@ viewMainPane { selectedState, currentForecastsDict } =
     div [ class "main-pane" ] [ mainPane ]
 
 
-viewWeatherDetails : WeatherData CurrentForecastResponse -> Html Msg
+viewWeatherDetails : WeatherData CurrentWeather -> Html Msg
 viewWeatherDetails weatherData =
     case weatherData of
         Fetching ->
