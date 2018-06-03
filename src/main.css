@@ -3,40 +3,88 @@ body {
   margin: 0;
   text-align: center;
   color: #293c4b;
-  background-color: #ead4ae;
 }
 
 .app {
     display: grid;
-    grid-template-columns: 1fr 2fr;
+    grid-template-columns: auto 250px 700px auto;
+    grid-template-rows: auto 700px auto;
+    grid-template-areas:
+        ". .    .    ."
+        ". tabs main ."
+        ". .    .    .";
 }
-
 
 h1 {
   font-size: 30px;
 }
 
 .tabs {
-  margin-left: 30px;
   align-self: center;
+  grid-area: tabs;
+
 }
 
 .main-pane {
     align-self: center;
+    grid-area: main;
+    background-color: white;
+    margin-left: 40px;
+    min-height: 300px;
 }
 
-img {
+.tab-item {
   display: block;
   margin: 20px 0;
   max-width: 200px;
+  filter: drop-shadow( -5px -5px 5px #000 );
+
   transition: all .2s ease-in-out;
 }
 
-img:hover { transform: scale(1.1); }
-
-.selected {
-    filter: invert(100%);
+.tab-item:hover {
+    filter: drop-shadow( -5px -5px 5px yellow );
 }
 
-.weather-details-success {
+.selected-Sydney {
+    transform: scale(3.5) translateX(150px) translateY(-10px);
+}
+.selected-Melbourne {
+    transform: scale(6) translateX(130px) translateY(-35px) rotate(25deg);
+}
+.selected-Brisbane {
+    transform: scale(3) translateX(140px) translateY(10px) rotate(-55deg);
+}
+
+.weather-details-container {
+    margin-top: -30px;
+    display : grid;
+    grid-template-areas:
+        ". temp  icon  desc  desc  desc"
+        ". temp  .     other other other"
+}
+
+.temperature {
+    grid-area: temp;
+    justify-self: end;
+    font-size: 3.5em;
+}
+.icon {
+    grid-area: icon;
+    justify-self: end;
+    align-self: center;
+    margin-left: -40px;
+}
+
+.description {
+    grid-area: desc;
+    justify-self: start;
+    align-self: center;
+}
+
+.other {
+    grid-area: other;
+    text-align: left;
+    justify-self: start;
+    align-self: start;
 }

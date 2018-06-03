@@ -2,8 +2,8 @@ module Main exposing (..)
 
 import Api.Weather
 import EveryDict exposing (EveryDict)
-import Html exposing (Html, button, div, h1, img, text)
-import Html.Attributes exposing (class, src)
+import Html exposing (..)
+import Html.Attributes exposing (class, classList, src)
 import Html.Events exposing (..)
 import Http
 import Types.CurrentForecastResponse as CurrentForecastResponse exposing (CurrentForecastResponse)
@@ -100,21 +100,23 @@ view model =
 viewTabs : Maybe Location -> Html Msg
 viewTabs currentlySelectedLocation =
     let
-        baseTabAttributes location =
+        tabAttributes location =
+            let
+                isSelected =
+                    case currentlySelectedLocation of
+                        Nothing ->
+                            False
+
+                        Just l ->
+                            l == location
+            in
             [ src <| Location.imagePath location
             , onClick <| TabSelected location
+            , classList
+                [ ( "tab-item", True )
+                , ( "selected-" ++ toString location, isSelected )
+                ]
             ]
-
-        tabAttributes location =
-            case currentlySelectedLocation of
-                Just selected ->
-                    if location == selected then
-                        baseTabAttributes location ++ [ class "selected" ]
-                    else
-                        baseTabAttributes location
-
-                Nothing ->
-                    baseTabAttributes location
 
         tab location =
             img (tabAttributes location) []
@@ -126,20 +128,27 @@ viewTabs currentlySelectedLocation =
 viewMainPane : Model -> Html Msg
 viewMainPane { selectedState, currentForecastsDict } =
     let
+        viewNothingSelected =
+            h1 [] [ text "Please select a state to retrieve the weather for its capital city." ]
+
         mainPane =
             case selectedState of
                 Nothing ->
-                    text "Please select a state to begin."
+                    viewNothingSelected
 
                 Just state ->
                     case EveryDict.get state currentForecastsDict of
                         Just data ->
-                            viewWeatherDetails data
+                            div []
+                                [ h1 [] [ text <| String.toUpper <| toString state ]
+                                , br [] []
+                                , viewWeatherDetails data
+                                ]
 
                         Nothing ->
-                            -- This should never happen.
-                            -- TODO: Possibly prevent this??
-                            text "Invalid state was selected."
+                            -- This should never happen, but just in case...
+                            Debug.log "Invalid state was selected" <|
+                                viewNothingSelected
     in
     div [ class "main-pane" ] [ mainPane ]
 
@@ -151,15 +160,21 @@ viewWeatherDetails weatherData =
             text "Loading..."
 
         Error err ->
-            text <| toString err
+            Debug.log (toString err) <|
+                text "An error has occurred."
 
         Fetched data ->
-            div [ class "weather-details-success" ]
-                [ text <| toString data.temp_c ++ "°C"
-                , text <| data.wx_desc
-                , img [ src <| "http://www.weatherunlocked.com/Images/icons/1/" ++ data.wx_icon ] []
-                , text <| "Wind : " ++ toString data.windspd_kmh ++ "km/h"
-                , text <| "Clouds: " ++ toString data.cloudtotal_pct ++ "%"
+            div [ class "weather-details-container" ]
+                [ h2 [ class "temperature" ]
+                    [ text <| toString data.temp_c ++ "°C"
+                    ]
+                , div [ class "icon" ] [ img [ src <| "http://www.weatherunlocked.com/Images/icons/1/" ++ data.wx_icon ] [] ]
+                , h4 [ class "description" ] [ text <| data.wx_desc ]
+                , div [ class "other" ] <|
+                    [ text <| "Wind : " ++ toString data.windspd_kmh ++ "km/h"
+                    , br [] []
+                    , text <| "Clouds: " ++ toString data.cloudtotal_pct ++ "%"
+                    ]
                 ]
 
 

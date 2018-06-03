@@ -1,4 +1,10 @@
-module Types.Location exposing (..)
+module Types.Location
+    exposing
+        ( Location
+        , all
+        , imagePath
+        , toCoordinatesString
+        )
 
 -- Disclaimer: The ordering of these are by no mean a reflection of my personal ranking of these cities
 
@@ -54,4 +60,4 @@ imagePath location =
                 Melbourne ->
                     "vic"
     in
-    "/" ++ filename ++ ".png"
+    "%PUBLIC_URL%/" ++ filename ++ ".svg"
